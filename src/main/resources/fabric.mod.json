@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "manhunt",
+  "version": "0.1",
+
+  "name": "Manhunt",
+  "description": "",
+  "authors": [
+    "Noryea"
+  ],
+  "contact": {
+    "homepage": "",
+    "sources": ""
+  },
+
+  "license": "All rights reserved",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "cn.noryea.manhunt.Main"
+    ],
+    "server": []
+  },
+  "mixins": [
+  	"manhunt.mixins.json"
+  ],
+	
+  "depends": {
+    "fabricloader": ">=0.11.3",
+    "fabric": "*",
+    "java": ">=16"
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
+}
