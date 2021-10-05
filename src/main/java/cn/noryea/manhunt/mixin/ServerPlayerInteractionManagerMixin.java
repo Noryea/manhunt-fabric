@@ -105,5 +105,6 @@ public abstract class ServerPlayerInteractionManagerMixin {
 		NbtCompound info = nbt.getCompound("Info");
 		info.putString("Name", trackedPlayer.getEntityName());
 		info.putFloat("Health", trackedPlayer.getHealth());
+		info.putLong("LastUpdateTime", player.getServerWorld().getTime());
 	}
 }
