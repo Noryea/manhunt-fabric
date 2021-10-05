@@ -54,7 +54,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
             }
 
             //对猎人显示Info
-            if (this.player.getMainHandStack().getOrCreateNbt().getBoolean("Tracker") && (this.player.getMainHandStack().getOrCreateNbt().getCompound("Info").contains("Name"))) {
+            if ((this.player.getMainHandStack().getOrCreateNbt().getBoolean("Tracker") && this.player.getMainHandStack().getOrCreateNbt().getCompound("Info").contains("Name")) || (this.player.getOffHandStack().getOrCreateNbt().getBoolean("Tracker") && this.player.getOffHandStack().getOrCreateNbt().getCompound("Info").contains("Name"))) {
                 NbtCompound info = this.player.getMainHandStack().getOrCreateNbt().getCompound("Info");
                 this.player.networkHandler.sendPacket(new OverlayMessageS2CPacket(new LiteralText("目标: \u00a7c" + info.getString("Name"))));
             }
