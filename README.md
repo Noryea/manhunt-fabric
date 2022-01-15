@@ -2,9 +2,9 @@
 A Minecraft Manhunt Mod For Fabric Server.
 
 # Features
-Multiple runners tracking.
+Supports multiple runners.
 
-Cross-dimension tracking. (When the tracked runner get into the nether, tracker points to his/her portal.)
+Cross-dimensions tracking. (When the tracked runner get into the nether, tracker points to his/her portal.)
 
 Works in custom dimension.
 
