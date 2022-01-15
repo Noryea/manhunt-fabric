@@ -42,14 +42,10 @@ public abstract class ServerPlayerInteractionManagerMixin {
 		}
 	}
 
-	@Inject(method = "tryBreakBlock", at = @At("HEAD"), cancellable = true) //创造
+	@Inject(method = "tryBreakBlock", at = @At("HEAD"), cancellable = true)
 	public void tryBreakBlock(BlockPos pos, CallbackInfoReturnable<ActionResult> ci) {
-		if (player.isCreative())  {
-			cycleTrackedPlayer(this.player, this.player.getMainHandStack().getOrCreateNbt());
-		}
+		cycleTrackedPlayer(this.player, this.player.getMainHandStack().getOrCreateNbt());
 	}
-
-
 
 	@Inject(method = "interactItem(Lnet/minecraft/server/network/ServerPlayerEntity;Lnet/minecraft/world/World;Lnet/minecraft/item/ItemStack;Lnet/minecraft/util/Hand;)Lnet/minecraft/util/ActionResult;", at = @At("HEAD"), cancellable = true)
 	public void interactItem(ServerPlayerEntity player, World world, ItemStack stack, Hand hand, CallbackInfoReturnable<ActionResult> cbi) {

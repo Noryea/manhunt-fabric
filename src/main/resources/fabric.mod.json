@@ -1,36 +1,30 @@
 {
   "schemaVersion": 1,
   "id": "manhunt",
-  "version": "0.1",
-
+  "version": "1.0",
   "name": "Manhunt",
   "description": "",
   "authors": [
     "Noryea"
   ],
   "contact": {
-    "homepage": "",
-    "sources": ""
+    "homepage": "https://github.com/Noryea/manhunt-fabric",
+    "sources": "https://github.com/Noryea/manhunt-fabric"
   },
-
-  "license": "All rights reserved",
+  "license": "GNU General Public License v3.0",
   "environment": "*",
   "entrypoints": {
     "main": [
-      "cn.noryea.manhunt.Main"
+      "cn.noryea.manhunt.Manhunt"
     ],
     "server": []
   },
   "mixins": [
   	"manhunt.mixins.json"
   ],
-	
   "depends": {
     "fabricloader": ">=0.11.3",
     "fabric": "*",
     "java": ">=16"
-  },
-  "suggests": {
-    "another-mod": "*"
   }
 }

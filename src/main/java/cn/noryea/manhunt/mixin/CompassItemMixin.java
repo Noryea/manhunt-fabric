@@ -37,7 +37,7 @@ public abstract class CompassItemMixin extends Item {
     }
 
     public boolean canMine(BlockState state, World world, BlockPos pos, PlayerEntity miner) {
-        return !miner.getMainHandStack().getOrCreateNbt().getBoolean("Tracker");
+        return !(miner.getMainHandStack().getOrCreateNbt().getBoolean("Tracker") && miner.isCreative());
     }
 
     @Inject(method = "inventoryTick", at = @At("HEAD"))

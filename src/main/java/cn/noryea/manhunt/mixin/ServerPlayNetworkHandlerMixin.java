@@ -43,14 +43,15 @@ public abstract class ServerPlayNetworkHandlerMixin {
                 nbt.put("Info", new NbtCompound());
                 nbt.put("display", new NbtCompound());
                 nbt.getCompound("display").putString("Name", "{\"text\": \"追踪器\",\"italic\": false,\"color\": \"white\"}");
-                List<ServerPlayerEntity> allPlayers = player.getServer().getPlayerManager().getPlayerList();
                 Team runners = player.getServer().getScoreboard().getTeam("runners");
+                List<ServerPlayerEntity> allPlayers = player.getServer().getPlayerManager().getPlayerList();
                 int i;
                 String sb = "";
                 for(i = 0; i < allPlayers.size(); ++i) {
                     ServerPlayerEntity x = allPlayers.get(i);
                     if (x != null && x.isTeamPlayer(runners)) {
                         sb = x.getName().asString();
+                        break;
                     }
                 }
                 nbt.getCompound("Info").putString("Name", sb);
@@ -66,9 +67,15 @@ public abstract class ServerPlayNetworkHandlerMixin {
             if (holdingTracker(player)) {
                 holding = true;
                 if (player.getMainHandStack().getOrCreateNbt().getBoolean("Tracker")) {
-                    showInfo(player.getMainHandStack().getOrCreateNbt().getCompound("Info"));
+                    NbtCompound info = player.getMainHandStack().getOrCreateNbt().getCompound("Info");
+                    if (player.getServer().getPlayerManager().getPlayer(info.getString("Name")) != null) {
+                        showInfo(info);
+                    }
                 } else {
-                    showInfo(player.getOffHandStack().getOrCreateNbt().getCompound("Info"));
+                    NbtCompound info = player.getOffHandStack().getOrCreateNbt().getCompound("Info");
+                    if (player.getServer().getPlayerManager().getPlayer(info.getString("Name")) != null) {
+                        showInfo(info);
+                    }
                 }
             } else {
                 if (holding) {
@@ -76,7 +83,6 @@ public abstract class ServerPlayNetworkHandlerMixin {
                     holding = false;
                 }
             }
-
         }
     }
 
