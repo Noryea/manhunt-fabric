@@ -1,60 +1,164 @@
 package cn.noryea.manhunt.mixin;
 
-import com.mojang.serialization.DataResult;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.nbt.*;
+import com.mojang.authlib.GameProfile;
+import net.minecraft.command.argument.TeamArgumentType;
+import net.minecraft.enchantment.Enchantments;
+import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.s2c.play.OverlayMessageS2CPacket;
+import net.minecraft.network.packet.s2c.play.PlayerListHeaderS2CPacket;
+import net.minecraft.scoreboard.Scoreboard;
+import net.minecraft.scoreboard.Team;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Texts;
+import net.minecraft.text.*;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
-import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.List;
 import java.util.Objects;
 
 @Mixin(ServerPlayerEntity.class)
-public abstract class ServerPlayerEntityMixin extends LivingEntity {
+public abstract class ServerPlayerEntityMixin extends PlayerEntity {
 
-    protected ServerPlayerEntityMixin(EntityType<? extends LivingEntity> entityType, World world) {
-        super(entityType, world);
+    @Shadow public MinecraftServer server;
+    @Shadow public ServerPlayNetworkHandler networkHandler;
+
+    @Shadow
+    public abstract boolean changeGameMode(GameMode gameMode);
+
+    boolean holding;
+
+    public ServerPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile profile) {
+        super(world, pos, yaw, profile);
     }
-
-    NbtList positions = new NbtList();
 
     @Inject(method = "tick", at = @At("HEAD"))
-    public void tick(CallbackInfo cbi) {
-        //同步坐标
-        DataResult<NbtElement> var10000 = World.CODEC.encodeStart(NbtOps.INSTANCE, world.getRegistryKey());
-        Logger logger = LOGGER;
-        Objects.requireNonNull(logger);
-        var10000.resultOrPartial(logger::error).ifPresent((dimension) -> {
-            int i;
-            for(i = 0; i < positions.size(); ++i) {
-                NbtCompound compound = positions.getCompound(i);
-                if (Objects.equals(compound.getString("LodestoneDimension"), dimension.asString())) {
-                    positions.remove(compound);
+    public void tick(CallbackInfo ci) {
+        //猎人追踪器功能
+        if (this.isTeamPlayer(server.getScoreboard().getTeam("hunters")) && this.isAlive()) {
+            if (!hasTracker()) {
+                NbtCompound nbt = new NbtCompound();
+                nbt.putBoolean("Tracker", true);
+                nbt.putBoolean("LodestoneTracked", false);
+                nbt.putString("LodestoneDimension", "minecraft:overworld");
+                nbt.putInt("HideFlags", 1);
+                nbt.put("Info", new NbtCompound());
+                nbt.put("display", new NbtCompound());
+                nbt.getCompound("display").putString("Name", "{\"text\": \"追踪器\",\"italic\": false,\"color\": \"white\"}");
+
+                ItemStack stack = new ItemStack(Items.COMPASS);
+                stack.setNbt(nbt);
+                stack.addEnchantment(Enchantments.VANISHING_CURSE, 1);
+
+                this.giveItemStack(stack);  //给予
+            }
+
+            //显示信息
+            if (holdingTracker()) {
+                holding = true;
+                if (this.getMainHandStack().getOrCreateNbt().getBoolean("Tracker")) {
+                    NbtCompound info = this.getMainHandStack().getOrCreateNbt().getCompound("Info");
+                    if (server.getPlayerManager().getPlayer(info.getString("Name")) != null) {
+                        showInfo(info);
+                    }
+                } else {
+                    NbtCompound info = this.getOffHandStack().getOrCreateNbt().getCompound("Info");
+                    if (server.getPlayerManager().getPlayer(info.getString("Name")) != null) {
+                        showInfo(info);
+                    }
+                }
+            } else {
+                if (holding) {
+                    this.networkHandler.sendPacket(new OverlayMessageS2CPacket(new LiteralText("")));
+                    holding = false;
                 }
             }
-            NbtCompound nbtCompound = new NbtCompound();
-            nbtCompound.put("LodestonePos", NbtHelper.fromBlockPos(this.getBlockPos()));
-            nbtCompound.put("LodestoneDimension", dimension);
-            positions.add(nbtCompound);
-        });
+
+            //TAB列表发包
+//            networkHandler.sendPacket(new PlayerListHeaderS2CPacket(new LiteralText("\u00a7l\u00a76猎人游戏"), new LiteralText("")));
+
+        }
     }
 
-    @Inject(method = "writeCustomDataToNbt", at = @At("RETURN"))
-    public void writeCustomDataToNbt(NbtCompound nbt, CallbackInfo cbi) {
-        nbt.putBoolean("manhuntModded", true);
-        nbt.put("Positions", positions);
+    //逃者死亡事件
+    @Inject(method = "onDeath", at = @At("HEAD"))
+    public void onDeath(DamageSource source, CallbackInfo ci) {
+        Scoreboard scoreboard = server.getScoreboard();
+
+        if (this.getScoreboardTeam().isEqual(scoreboard.getTeam("runners"))) {
+
+            changeGameMode(GameMode.SPECTATOR);
+            scoreboard.clearPlayerTeam(this.getName().asString());
+
+            if (server.getScoreboard().getTeam("runners").getPlayerList().isEmpty()) {
+                server.getCommandManager().execute(this.getCommandSource().withSilent(), "title @a subtitle {\"text\":\"所有逃者已阵亡\",\"color\":\"white\"}");
+                server.getCommandManager().execute(this.getCommandSource().withSilent(), "title @a title {\"text\":\"猎人胜利!\",\"color\":\"red\"}");
+            }
+        }
     }
 
-    @Inject(method = "readCustomDataFromNbt", at = @At("RETURN"))
-    public void readCustomDataFromNbt(NbtCompound nbt, CallbackInfo cbi) {
-        this.positions = nbt.getList("Positions", 10);
+    private void showInfo(NbtCompound info) {
+        String text_color = "\u00a7a";
+
+        String actionbar = "目标: ";
+        actionbar += text_color + info.getString("Name");
+        actionbar += " \u00a7f";
+        actionbar += " 维度: ";
+
+        String dimension = info.getString("Dimension");
+        if (!info.contains("Dimension")) {
+            dimension = "\u00a7e?";
+        } else if (Objects.equals(dimension, "minecraft:overworld")) {
+            dimension = "主世界";
+        } else if (Objects.equals(dimension, "minecraft:the_nether")) {
+            dimension = "下界";
+        } else if (Objects.equals(dimension, "minecraft:the_end")) {
+            dimension = "末地";
+        }
+
+        actionbar += text_color + dimension;
+
+        this.networkHandler.sendPacket(new OverlayMessageS2CPacket(new LiteralText(actionbar)));
     }
+
+    private boolean hasTracker() {
+        boolean n = false;
+        for (ItemStack item : this.getInventory().main) {
+            if (item.getItem().equals(Items.COMPASS) && item.getOrCreateNbt().getBoolean("Tracker")) {
+                n = true;
+                break;
+            }
+        }
+
+        if (this.playerScreenHandler.getCursorStack().getOrCreateNbt().getBoolean("Tracker")) {
+            n = true;
+        } else if (this.getOffHandStack().getOrCreateNbt().getBoolean("Tracker")) {
+            n = true;
+        }
+
+        return n;
+    }
+
+    private boolean holdingTracker() {
+        boolean n = false;
+        if (this.getMainHandStack().getOrCreateNbt().getBoolean("Tracker") && this.getMainHandStack().getOrCreateNbt().getCompound("Info").contains("Name")) {
+            n = true;
+        } else if (this.getOffHandStack().getOrCreateNbt().getBoolean("Tracker") && this.getOffHandStack().getOrCreateNbt().getCompound("Info").contains("Name")) {
+            n = true;
+        }
+        return n;
+    }
+
 }
