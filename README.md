@@ -1,13 +1,11 @@
-# Manhunt (requires Fabric API)
-A Minecraft Manhunt Mod For Fabric Server.
+# 猎人游戏 Manhunt
+A Minecraft Manhunt Mod for Fabric Server. (requires Fabric API)
 
-# Features
-Supports multiple runners.
+# 如何使用 How 2 Use
+  On server is initialized, the hunters and runners teams will be automatically added, players can use command "/mh join <team>" to join teams.
+  Hunters will have a tracker, left-click to select a runner, right-click to update the coordinates.
+  Furthermore, you can use command "/mh cure <player(s)>" to cure players (if you are an admin).
 
-Cross-dimensions tracking. (When the tracked runner get into the nether, tracker points to his/her portal.)
-
-Works in custom dimension.
-
-# How 2 Use
-On server is initialized, the hunters and runners teams will be automatically added, players can use command "/mh join team" to join teams.
-Hunters will have a tracker, left-click to select a runner, right-click to update the coordinates.
+  服务器初始化后，会自动添加猎人和逃者队伍，玩家可以使用命令“/mh join <team>”加入队伍。
+  猎人会有一个追踪器，左键可以选择逃者，右键更新坐标。
+  另外，你还可以使用命令“/mh cure <player(s)>”来治愈玩家 (如果你是管理的话)。 
