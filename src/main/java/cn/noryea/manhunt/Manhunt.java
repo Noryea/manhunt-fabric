@@ -17,6 +17,10 @@ public class Manhunt implements ModInitializer {
     public static List<ServerPlayerEntity> allPlayers;
     public static List<ServerPlayerEntity> allRunners;
 
+    public static final Formatting huntersColor = Formatting.RED;
+    public static final Formatting runnersColor = Formatting.GREEN;
+
+
     @Override
     public void onInitialize() {
 
@@ -29,14 +33,12 @@ public class Manhunt implements ModInitializer {
             Scoreboard scoreboard = world.getServer().getScoreboard();
             if (scoreboard.getTeam("hunters") == null) {
                 Team team = scoreboard.addTeam("hunters");
-                team.setColor(Formatting.RED);
-                team.setDisplayName(new LiteralText("\u00a7l\u00a7c猎人"));
+                team.setDisplayName((new LiteralText("猎人")).formatted(huntersColor));
             }
 
             if (scoreboard.getTeam("runners") == null) {
                 Team team= scoreboard.addTeam("runners");
-                team.setColor(Formatting.DARK_GREEN);
-                team.setDisplayName(new LiteralText("\u00a7l\u00a72逃者"));
+                team.setDisplayName((new LiteralText("逃者")).formatted(runnersColor));
             }
 
             //获取玩家列表
