@@ -10,7 +10,6 @@ import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
 import net.minecraft.network.packet.s2c.play.PlaySoundS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.network.ServerPlayerInteractionManager;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.LiteralText;
@@ -115,7 +114,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
 		nbt.remove("LodestoneDimension");
 		nbt.put("Info", new NbtCompound());
 
-		if (Objects.equals(trackedPlayer.getScoreboardTeam().getName(), "runners")) {
+		if (Objects.equals(Objects.requireNonNull(trackedPlayer.getScoreboardTeam()).getName(), "runners")) {
 			NbtCompound playerTag = trackedPlayer.writeNbt(new NbtCompound());
 			NbtList positions = playerTag.getList("Positions", 10);
 			int i;

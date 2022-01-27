@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "manhunt",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "name": "Manhunt",
   "description": "Fabric下的猎人游戏模组 | Manhunt mod for Fabric.",
   "authors": [

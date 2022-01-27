@@ -33,12 +33,14 @@ public class Manhunt implements ModInitializer {
             Scoreboard scoreboard = world.getServer().getScoreboard();
             if (scoreboard.getTeam("hunters") == null) {
                 Team team = scoreboard.addTeam("hunters");
-                team.setDisplayName((new LiteralText("猎人")).formatted(huntersColor));
+                team.setDisplayName(new LiteralText("猎人"));
+                team.setColor(huntersColor);
             }
 
             if (scoreboard.getTeam("runners") == null) {
-                Team team= scoreboard.addTeam("runners");
-                team.setDisplayName((new LiteralText("逃者")).formatted(runnersColor));
+                Team team = scoreboard.addTeam("runners");
+                team.setDisplayName(new LiteralText("逃者"));
+                team.setColor(runnersColor);
             }
 
             //获取玩家列表
@@ -57,9 +59,7 @@ public class Manhunt implements ModInitializer {
         });
 
         //命令注册
-        CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
-            ManhuntCommand.registerCommands(dispatcher);
-        });
+        CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> ManhuntCommand.registerCommands(dispatcher));
 
     }
 }

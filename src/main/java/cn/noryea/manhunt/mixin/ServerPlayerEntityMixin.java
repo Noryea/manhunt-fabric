@@ -1,6 +1,5 @@
 package cn.noryea.manhunt.mixin;
 
-import cn.noryea.manhunt.Manhunt;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.damage.DamageSource;
@@ -10,12 +9,10 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.s2c.play.OverlayMessageS2CPacket;
 import net.minecraft.scoreboard.Scoreboard;
-import net.minecraft.scoreboard.Team;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.*;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
@@ -24,7 +21,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Objects;
 
@@ -93,44 +89,46 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
     public void onDeath(DamageSource source, CallbackInfo ci) {
         Scoreboard scoreboard = server.getScoreboard();
 
-        if (this.getScoreboardTeam().isEqual(scoreboard.getTeam("runners"))) {
+        if (this.getScoreboardTeam() != null) {
+            if (this.getScoreboardTeam().isEqual(scoreboard.getTeam("runners"))) {
 
-            changeGameMode(GameMode.SPECTATOR);
-            scoreboard.clearPlayerTeam(this.getName().asString());
+                changeGameMode(GameMode.SPECTATOR);
+                scoreboard.clearPlayerTeam(this.getName().asString());
 
-            if (server.getScoreboard().getTeam("runners").getPlayerList().isEmpty()) {
-                server.getCommandManager().execute(this.getCommandSource().withSilent().withLevel(2), "title @a subtitle {\"text\":\"所有逃者已阵亡\",\"color\":\"white\"}");
-                server.getCommandManager().execute(this.getCommandSource().withSilent().withLevel(2), "title @a title {\"text\":\"猎人胜利!\",\"color\":\"red\"}");
+                if (server.getScoreboard().getTeam("runners").getPlayerList().isEmpty()) {
+                    server.getCommandManager().execute(this.getCommandSource().withSilent().withLevel(2), "title @a subtitle {\"text\":\"所有逃者已阵亡\",\"color\":\"white\"}");
+                    server.getCommandManager().execute(this.getCommandSource().withSilent().withLevel(2), "title @a title {\"text\":\"猎人胜利!\",\"color\":\"red\"}");
+                }
             }
         }
     }
 
     //玩家列表的名字
-    @Inject(method = "getPlayerListName", at = @At("TAIL"), cancellable = true)
-    private void replacePlayerListName(CallbackInfoReturnable<Text> cir) {
-        try {
-            if (this.getScoreboardTeam() != null) {
-
-                Team team = server.getScoreboard().getTeam(this.getScoreboardTeam().getName());
-
-                MutableText mutableText = (new LiteralText("")).append(team.getFormattedName()).append(this.getName());
-
-                Formatting formatting = team.getColor();
-                if (formatting != Formatting.RESET) {
-                    mutableText.formatted(formatting);
-                } else if (team.getName().equals("hunters")) {
-                    mutableText.formatted(Manhunt.huntersColor);
-                } else if (team.getName().equals("runners")) {
-                    mutableText.formatted(Manhunt.runnersColor);
-                }
-
-                cir.setReturnValue(mutableText);
-
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+//    @Inject(method = "getPlayerListName", at = @At("TAIL"), cancellable = true)
+//    private void replacePlayerListName(CallbackInfoReturnable<Text> cir) {
+//        try {
+//            if (this.getScoreboardTeam() != null) {
+//
+//                Team team = server.getScoreboard().getTeam(this.getScoreboardTeam().getName());
+//
+//                MutableText mutableText = (new LiteralText("")).append(team.getFormattedName()).append(this.getName());
+//
+//                Formatting formatting = team.getColor();
+//                if (formatting != Formatting.RESET) {
+//                    mutableText.formatted(formatting);
+//                } else if (team.getName().equals("hunters")) {
+//                    mutableText.formatted(Manhunt.huntersColor);
+//                } else if (team.getName().equals("runners")) {
+//                    mutableText.formatted(Manhunt.runnersColor);
+//                }
+//
+//                cir.setReturnValue(mutableText);
+//
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     private void showInfo(NbtCompound info) {
         String text_color = "\u00a7a";

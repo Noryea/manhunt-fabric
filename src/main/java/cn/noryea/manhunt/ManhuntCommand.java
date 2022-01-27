@@ -45,10 +45,6 @@ public class ManhuntCommand {
         Scoreboard scoreboard = source.getServer().getScoreboard();
 
         scoreboard.addPlayerToTeam(source.getPlayer().getName().asString(), team);
-
-        PlayerListS2CPacket packet = new PlayerListS2CPacket(PlayerListS2CPacket.Action.UPDATE_DISPLAY_NAME, source.getPlayer().getServer().getPlayerManager().getPlayerList());
-        source.getPlayer().getServer().getPlayerManager().sendToAll(packet);
-
         source.sendFeedback(new TranslatableText("commands.team.join.success.single", source.getPlayer().getName(), team.getFormattedName()), true);
 
         return 1;
