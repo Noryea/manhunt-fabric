@@ -19,6 +19,7 @@ import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -37,18 +38,18 @@ public abstract class ServerPlayerInteractionManagerMixin {
 	@Inject(method = "processBlockBreakingAction", at = @At("HEAD"), cancellable = true)
 	public void processBlockBreakingAction(BlockPos pos, PlayerActionC2SPacket.Action action, Direction direction, int worldHeight, CallbackInfo ci) {
 		if (action.equals(PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK)) {
-			cycleTrackedPlayer(this.player, this.player.getMainHandStack().getOrCreateNbt());
+			cycleTrackedPlayer(this.player, this.player.getMainHandStack().getNbt());
 		}
 	}
 
 	@Inject(method = "tryBreakBlock", at = @At("HEAD"), cancellable = true)
 	public void tryBreakBlock(BlockPos pos, CallbackInfoReturnable<ActionResult> ci) {
-		cycleTrackedPlayer(this.player, this.player.getMainHandStack().getOrCreateNbt());
+		cycleTrackedPlayer(this.player, this.player.getMainHandStack().getNbt());
 	}
 
 	@Inject(method = "interactItem(Lnet/minecraft/server/network/ServerPlayerEntity;Lnet/minecraft/world/World;Lnet/minecraft/item/ItemStack;Lnet/minecraft/util/Hand;)Lnet/minecraft/util/ActionResult;", at = @At("HEAD"), cancellable = true)
 	public void interactItem(ServerPlayerEntity player, World world, ItemStack stack, Hand hand, CallbackInfoReturnable<ActionResult> cbi) {
-		if(stack.getOrCreateNbt().getBoolean("Tracker") && !player.isSpectator() && player.isTeamPlayer(world.getScoreboard().getTeam("hunters"))) {
+		if(stack.getNbt() != null && stack.getNbt().getBoolean("Tracker") && !player.isSpectator() && player.isTeamPlayer(world.getScoreboard().getTeam("hunters"))) {
 			if (!stack.getOrCreateNbt().contains("Info")) {
 				stack.getOrCreateNbt().put("Info",new NbtCompound());
 			}
@@ -68,9 +69,8 @@ public abstract class ServerPlayerInteractionManagerMixin {
 	}
 
 	//循环选择目标
-	private void cycleTrackedPlayer(ServerPlayerEntity player, NbtCompound stackNbt) {
-		if (stackNbt.getBoolean("Tracker") && player.isTeamPlayer(player.getServer().getScoreboard().getTeam("hunters"))) {
-
+	private void cycleTrackedPlayer(ServerPlayerEntity player, @Nullable NbtCompound stackNbt) {
+		if (stackNbt != null && stackNbt.getBoolean("Tracker") && player.isTeamPlayer(player.getServer().getScoreboard().getTeam("hunters"))) {
 			if (!stackNbt.contains("Info")) {
 				stackNbt.put("Info",new NbtCompound());
 			}
