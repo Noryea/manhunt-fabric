@@ -63,13 +63,13 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
             //显示信息
             if (holdingTracker()) {
                 holding = true;
-                if (this.getMainHandStack().getOrCreateNbt().getBoolean("Tracker")) {
-                    NbtCompound info = this.getMainHandStack().getOrCreateNbt().getCompound("Info");
+                if (this.getMainHandStack().getNbt() != null && this.getMainHandStack().getNbt().getBoolean("Tracker")) {
+                    NbtCompound info = this.getMainHandStack().getNbt().getCompound("Info");
                     if (server.getPlayerManager().getPlayer(info.getString("Name")) != null) {
                         showInfo(info);
                     }
-                } else {
-                    NbtCompound info = this.getOffHandStack().getOrCreateNbt().getCompound("Info");
+                } else if (this.getOffHandStack().getNbt() != null) {
+                    NbtCompound info = this.getOffHandStack().getNbt().getCompound("Info");
                     if (server.getPlayerManager().getPlayer(info.getString("Name")) != null) {
                         showInfo(info);
                     }
@@ -157,15 +157,15 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
     private boolean hasTracker() {
         boolean n = false;
         for (ItemStack item : this.getInventory().main) {
-            if (item.getItem().equals(Items.COMPASS) && item.getOrCreateNbt().getBoolean("Tracker")) {
+            if (item.getItem().equals(Items.COMPASS) && item.getNbt() != null && item.getNbt().getBoolean("Tracker")) {
                 n = true;
                 break;
             }
         }
 
-        if (this.playerScreenHandler.getCursorStack().getOrCreateNbt().getBoolean("Tracker")) {
+        if (this.playerScreenHandler.getCursorStack().getNbt() != null && this.playerScreenHandler.getCursorStack().getNbt().getBoolean("Tracker")) {
             n = true;
-        } else if (this.getOffHandStack().getOrCreateNbt().getBoolean("Tracker")) {
+        } else if (this.getOffHandStack().getNbt() != null && this.getOffHandStack().getNbt().getBoolean("Tracker")) {
             n = true;
         }
 
@@ -174,9 +174,9 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
 
     private boolean holdingTracker() {
         boolean n = false;
-        if (this.getMainHandStack().getOrCreateNbt().getBoolean("Tracker") && this.getMainHandStack().getOrCreateNbt().getCompound("Info").contains("Name")) {
+        if (this.getMainHandStack().getNbt() != null && this.getMainHandStack().getNbt().getBoolean("Tracker") && this.getMainHandStack().getNbt().getCompound("Info").contains("Name")) {
             n = true;
-        } else if (this.getOffHandStack().getOrCreateNbt().getBoolean("Tracker") && this.getOffHandStack().getOrCreateNbt().getCompound("Info").contains("Name")) {
+        } else if (this.getOffHandStack().getNbt() != null && this.getOffHandStack().getNbt().getBoolean("Tracker") && this.getOffHandStack().getNbt().getCompound("Info").contains("Name")) {
             n = true;
         }
         return n;
