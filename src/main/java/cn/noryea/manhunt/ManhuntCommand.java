@@ -32,7 +32,10 @@ public class ManhuntCommand {
                     .executes((ctx) -> executeCure(ctx.getSource(), EntityArgumentType.getPlayers(ctx, "targets")))))
             .then(CommandManager.literal("freeze").requires((src) -> src.hasPermissionLevel(2))
                 .then(CommandManager.argument("seconds", IntegerArgumentType.integer(1, 120))
-                    .executes((ctx) -> executeFreeze(ctx.getSource(), IntegerArgumentType.getInteger(ctx, "seconds"))))));
+                    .executes((ctx) -> executeFreeze(ctx.getSource(), IntegerArgumentType.getInteger(ctx, "seconds")))))
+            .then(CommandManager.literal("compassDelay").requires((src) -> src.hasPermissionLevel(2))
+                .then(CommandManager.argument("seconds", IntegerArgumentType.integer(0, 120))
+                    .executes((ctx) -> executeCompassDelay(ctx.getSource(), IntegerArgumentType.getInteger(ctx, "seconds"))))));
     }
 
     private static int executeJoin(ServerCommandSource source, Team team) {
@@ -40,6 +43,13 @@ public class ManhuntCommand {
 
         scoreboard.addPlayerToTeam(source.getPlayer().getName().getString(), team);
         source.sendFeedback(Text.translatable("commands.team.join.success.single", source.getPlayer().getName(), team.getFormattedName()), true);
+
+        return 1;
+    }
+
+    private static int executeCompassDelay(ServerCommandSource source, Integer delay) {
+        Manhunt.delay = delay;
+        source.sendFeedback(Text.of("Set delay to: " + delay + " seconds"), true);
 
         return 1;
     }

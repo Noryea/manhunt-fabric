@@ -28,6 +28,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Objects;
 
+import static cn.noryea.manhunt.Manhunt.delay;
+
 @Mixin(ServerPlayerInteractionManager.class)
 public abstract class ServerPlayerInteractionManagerMixin {
 	@Final @Shadow protected ServerPlayerEntity player;
@@ -44,8 +46,14 @@ public abstract class ServerPlayerInteractionManagerMixin {
 		cycleTrackedPlayer(this.player, this.player.getMainHandStack().getNbt());
 	}
 
-	@Inject(method = "interactItem(Lnet/minecraft/server/network/ServerPlayerEntity;Lnet/minecraft/world/World;Lnet/minecraft/item/ItemStack;Lnet/minecraft/util/Hand;)Lnet/minecraft/util/ActionResult;", at = @At("HEAD"))
+	@Inject(
+			method = "interactItem",
+			at = @At(
+					target = "Lnet/minecraft/item/ItemStack;use(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/Hand;)Lnet/minecraft/util/TypedActionResult;",
+					value = "INVOKE"
+			))
 	public void interactItem(ServerPlayerEntity player, World world, ItemStack stack, Hand hand, CallbackInfoReturnable<ActionResult> cbi) {
+		player.getItemCooldownManager().set(stack.getItem(), delay * 20);
 		if(stack.getNbt() != null && stack.getNbt().getBoolean("Tracker") && !player.isSpectator() && player.isTeamPlayer(world.getScoreboard().getTeam("hunters"))) {
 			if (!stack.getOrCreateNbt().contains("Info")) {
 				stack.getOrCreateNbt().put("Info",new NbtCompound());
@@ -65,7 +73,6 @@ public abstract class ServerPlayerInteractionManagerMixin {
 		}
 	}
 
-	//循环选择目标
 	private void cycleTrackedPlayer(ServerPlayerEntity player, @Nullable NbtCompound stackNbt) {
 		if (stackNbt != null && stackNbt.getBoolean("Tracker") && player.isTeamPlayer(player.getServer().getScoreboard().getTeam("hunters"))) {
 			if (!stackNbt.contains("Info")) {
@@ -78,7 +85,6 @@ public abstract class ServerPlayerInteractionManagerMixin {
 
 			if (Manhunt.allRunners.isEmpty()) { player.sendMessage(Text.of("\u00a7cNo runners")); }
 			else {
-				//旧的目标序号
 				for (int i = 0; i < Manhunt.allRunners.size(); i++) {
 					ServerPlayerEntity x = Manhunt.allRunners.get(i);
 					if (x != null) {
@@ -88,7 +94,6 @@ public abstract class ServerPlayerInteractionManagerMixin {
 					}
 				}
 
-				//切换目标
 				if (previous + 1 >= Manhunt.allRunners.size()) {
 					next = 0;
 				} else {
@@ -105,13 +110,12 @@ public abstract class ServerPlayerInteractionManagerMixin {
 		}
 	}
 
-	//更新指南针
 	private void updateCompass(ServerPlayerEntity player, NbtCompound nbt, ServerPlayerEntity trackedPlayer) {
 		nbt.remove("LodestonePos");
 		nbt.remove("LodestoneDimension");
-		nbt.put("Info", new NbtCompound());
 
-		if (Objects.equals(Objects.requireNonNull(trackedPlayer.getScoreboardTeam()).getName(), "runners")) {
+		nbt.put("Info", new NbtCompound());
+		if (trackedPlayer.getScoreboardTeam() != null && Objects.equals(trackedPlayer.getScoreboardTeam().getName(), "runners")) {
 			NbtCompound playerTag = trackedPlayer.writeNbt(new NbtCompound());
 			NbtList positions = playerTag.getList("Positions", 10);
 			int i;

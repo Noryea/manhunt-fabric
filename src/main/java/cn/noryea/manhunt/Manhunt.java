@@ -19,8 +19,7 @@ public class Manhunt implements ModInitializer {
 
     public static final Formatting huntersColor = Formatting.RED;
     public static final Formatting runnersColor = Formatting.GREEN;
-
-
+    public static int delay = 0;
     @Override
     public void onInitialize() {
 
