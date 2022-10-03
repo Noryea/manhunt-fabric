@@ -53,8 +53,8 @@ public abstract class ServerPlayerInteractionManagerMixin {
 					value = "INVOKE"
 			))
 	public void interactItem(ServerPlayerEntity player, World world, ItemStack stack, Hand hand, CallbackInfoReturnable<ActionResult> cbi) {
-		player.getItemCooldownManager().set(stack.getItem(), delay * 20);
 		if(stack.getNbt() != null && stack.getNbt().getBoolean("Tracker") && !player.isSpectator() && player.isTeamPlayer(world.getScoreboard().getTeam("hunters"))) {
+			player.getItemCooldownManager().set(stack.getItem(), delay * 20);
 			if (!stack.getOrCreateNbt().contains("Info")) {
 				stack.getOrCreateNbt().put("Info",new NbtCompound());
 			}
