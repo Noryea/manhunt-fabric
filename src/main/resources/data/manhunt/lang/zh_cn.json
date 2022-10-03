@@ -2,7 +2,7 @@
   "manhunt.item.tracker": "§dTracker",
   "manhunt.item.tracker.switchRunner": "§7Compass is now pointing to §f%s",
   "manhunt.item.tracker.noRunners": "§cThere is no runners",
-  "manhunt.commands.delay": "§7et delay to: §f%d §7seconds",
+  "manhunt.commands.delay": "§7Set delay to: §f%d §7seconds",
   "manhunt.commands.cured": "§7Cured §f%d §7targets",
   "manhunt.commands.freeze": "§7Hunters will be frozen for §f%d§7 seconds",
   "manhunt.teams.hunters.name": "§cHunters",
