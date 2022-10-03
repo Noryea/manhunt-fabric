@@ -83,9 +83,8 @@ public abstract class ServerPlayerInteractionManagerMixin {
 			int previous = -1;
 			NbtCompound info = stackNbt.getCompound("Info");
 
-			if (Manhunt.allRunners.isEmpty()) {
-				//player.sendMessage(Text.of("\u00a7cNo runners"));
-			} else {
+			if (Manhunt.allRunners.isEmpty()) { player.sendMessage(Text.of("\u00a7cNo runners")); }
+			else {
 				for (int i = 0; i < Manhunt.allRunners.size(); i++) {
 					ServerPlayerEntity x = Manhunt.allRunners.get(i);
 					if (x != null) {
