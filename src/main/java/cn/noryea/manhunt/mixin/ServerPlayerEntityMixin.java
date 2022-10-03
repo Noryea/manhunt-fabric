@@ -7,6 +7,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.encryption.PlayerPublicKey;
 import net.minecraft.network.packet.s2c.play.OverlayMessageS2CPacket;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.server.MinecraftServer;
@@ -16,6 +17,7 @@ import net.minecraft.text.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -27,7 +29,7 @@ import java.util.Objects;
 @Mixin(ServerPlayerEntity.class)
 public abstract class ServerPlayerEntityMixin extends PlayerEntity {
 
-    @Shadow public MinecraftServer server;
+    @Final @Shadow public MinecraftServer server;
     @Shadow public ServerPlayNetworkHandler networkHandler;
 
     @Shadow
@@ -35,13 +37,12 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
 
     boolean holding;
 
-    public ServerPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile profile) {
-        super(world, pos, yaw, profile);
+    public ServerPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile profile, PlayerPublicKey key) {
+        super(world, pos, yaw, profile, key);
     }
 
     @Inject(method = "tick", at = @At("HEAD"))
     public void tick(CallbackInfo ci) {
-        //猎人追踪器功能
         if (this.isTeamPlayer(server.getScoreboard().getTeam("hunters")) && this.isAlive()) {
             if (!hasTracker()) {
                 NbtCompound nbt = new NbtCompound();
@@ -51,7 +52,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
                 nbt.putInt("HideFlags", 1);
                 nbt.put("Info", new NbtCompound());
                 nbt.put("display", new NbtCompound());
-                nbt.getCompound("display").putString("Name", "{\"text\": \"追踪器\",\"italic\": false,\"color\": \"white\"}");
+                nbt.getCompound("display").putString("Name", "{\"text\": \"Tracker\",\"italic\": false,\"color\": \"white\"}");
 
                 ItemStack stack = new ItemStack(Items.COMPASS);
                 stack.setNbt(nbt);
@@ -76,7 +77,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
                 }
             } else {
                 if (holding) {
-                    this.networkHandler.sendPacket(new OverlayMessageS2CPacket(new LiteralText("")));
+                    this.networkHandler.sendPacket(new OverlayMessageS2CPacket(Text.of("")));
                     holding = false;
                 }
             }
@@ -93,11 +94,11 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
             if (this.getScoreboardTeam().isEqual(scoreboard.getTeam("runners"))) {
 
                 changeGameMode(GameMode.SPECTATOR);
-                scoreboard.clearPlayerTeam(this.getName().asString());
+                scoreboard.clearPlayerTeam(this.getName().getString());
 
                 if (server.getScoreboard().getTeam("runners").getPlayerList().isEmpty()) {
-                    server.getCommandManager().execute(this.getCommandSource().withSilent().withLevel(2), "title @a subtitle {\"text\":\"所有逃者已阵亡\",\"color\":\"white\"}");
-                    server.getCommandManager().execute(this.getCommandSource().withSilent().withLevel(2), "title @a title {\"text\":\"猎人胜利!\",\"color\":\"red\"}");
+                    server.getCommandManager().executeWithPrefix(this.getCommandSource().withSilent().withLevel(2), "title @a subtitle {\"text\":\"All runners were killed\",\"color\":\"white\"}");
+                    server.getCommandManager().executeWithPrefix(this.getCommandSource().withSilent().withLevel(2), "title @a title {\"text\":\"Hunters won!\",\"color\":\"red\"}");
                 }
             }
         }
@@ -133,25 +134,25 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
     private void showInfo(NbtCompound info) {
         String text_color = "\u00a7a";
 
-        String actionbar = "目标: ";
+        String actionbar = "target: ";
         actionbar += text_color + info.getString("Name");
         actionbar += " \u00a7f";
-        actionbar += " 维度: ";
+        actionbar += " dimension: ";
 
         String dimension = info.getString("Dimension");
         if (!info.contains("Dimension")) {
             dimension = "\u00a7e?";
         } else if (Objects.equals(dimension, "minecraft:overworld")) {
-            dimension = "主世界";
+            dimension = "overworld";
         } else if (Objects.equals(dimension, "minecraft:the_nether")) {
-            dimension = "下界";
+            dimension = "nether";
         } else if (Objects.equals(dimension, "minecraft:the_end")) {
-            dimension = "末地";
+            dimension = "end";
         }
 
         actionbar += text_color + dimension;
 
-        this.networkHandler.sendPacket(new OverlayMessageS2CPacket(new LiteralText(actionbar)));
+        this.networkHandler.sendPacket(new OverlayMessageS2CPacket(Text.of(actionbar)));
     }
 
     private boolean hasTracker() {

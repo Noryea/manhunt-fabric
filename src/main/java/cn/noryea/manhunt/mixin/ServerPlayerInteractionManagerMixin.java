@@ -5,21 +5,20 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
-import net.minecraft.network.MessageType;
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
 import net.minecraft.network.packet.s2c.play.PlaySoundS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.network.ServerPlayerInteractionManager;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -31,23 +30,21 @@ import java.util.Objects;
 
 @Mixin(ServerPlayerInteractionManager.class)
 public abstract class ServerPlayerInteractionManagerMixin {
-	@Shadow
-	protected ServerPlayerEntity player;
+	@Final @Shadow protected ServerPlayerEntity player;
 
-
-	@Inject(method = "processBlockBreakingAction", at = @At("HEAD"), cancellable = true)
-	public void processBlockBreakingAction(BlockPos pos, PlayerActionC2SPacket.Action action, Direction direction, int worldHeight, CallbackInfo ci) {
+	@Inject(method = "processBlockBreakingAction", at = @At("HEAD"))
+	public void processBlockBreakingAction(BlockPos pos, PlayerActionC2SPacket.Action action, Direction direction, int worldHeight, int sequence, CallbackInfo ci) {
 		if (action.equals(PlayerActionC2SPacket.Action.ABORT_DESTROY_BLOCK)) {
 			cycleTrackedPlayer(this.player, this.player.getMainHandStack().getNbt());
 		}
 	}
 
-	@Inject(method = "tryBreakBlock", at = @At("HEAD"), cancellable = true)
+	@Inject(method = "tryBreakBlock", at = @At("HEAD"))
 	public void tryBreakBlock(BlockPos pos, CallbackInfoReturnable<ActionResult> ci) {
 		cycleTrackedPlayer(this.player, this.player.getMainHandStack().getNbt());
 	}
 
-	@Inject(method = "interactItem(Lnet/minecraft/server/network/ServerPlayerEntity;Lnet/minecraft/world/World;Lnet/minecraft/item/ItemStack;Lnet/minecraft/util/Hand;)Lnet/minecraft/util/ActionResult;", at = @At("HEAD"), cancellable = true)
+	@Inject(method = "interactItem(Lnet/minecraft/server/network/ServerPlayerEntity;Lnet/minecraft/world/World;Lnet/minecraft/item/ItemStack;Lnet/minecraft/util/Hand;)Lnet/minecraft/util/ActionResult;", at = @At("HEAD"))
 	public void interactItem(ServerPlayerEntity player, World world, ItemStack stack, Hand hand, CallbackInfoReturnable<ActionResult> cbi) {
 		if(stack.getNbt() != null && stack.getNbt().getBoolean("Tracker") && !player.isSpectator() && player.isTeamPlayer(world.getScoreboard().getTeam("hunters"))) {
 			if (!stack.getOrCreateNbt().contains("Info")) {
@@ -56,13 +53,13 @@ public abstract class ServerPlayerInteractionManagerMixin {
 			NbtCompound info = stack.getOrCreateNbt().getCompound("Info");
 
 			if (!info.contains("Name", NbtElement.STRING_TYPE) && !Manhunt.allRunners.isEmpty()) {
-				info.putString("Name", Manhunt.allRunners.get(0).getName().asString());
+				info.putString("Name", Manhunt.allRunners.get(0).getName().getString());
 			}
 
 			ServerPlayerEntity trackedPlayer = world.getServer().getPlayerManager().getPlayer(info.getString("Name"));
 
 			if (trackedPlayer != null) {
-				player.networkHandler.sendPacket(new PlaySoundS2CPacket(SoundEvents.UI_BUTTON_CLICK, SoundCategory.PLAYERS, player.getX(), player.getY(), player.getZ(), 0.85f ,0.95f));
+				player.networkHandler.sendPacket(new PlaySoundS2CPacket(SoundEvents.UI_BUTTON_CLICK, SoundCategory.PLAYERS, player.getX(), player.getY(), player.getZ(), 0.85f, 0.95f, 0));
 				updateCompass(player, stack.getOrCreateNbt(), trackedPlayer);
 			}
 		}
@@ -79,13 +76,13 @@ public abstract class ServerPlayerInteractionManagerMixin {
 			int previous = -1;
 			NbtCompound info = stackNbt.getCompound("Info");
 
-			if (Manhunt.allRunners.isEmpty()) { player.sendMessage(new LiteralText("\u00a7c目标队伍成员为空"), MessageType.GAME_INFO, Util.NIL_UUID); }
+			if (Manhunt.allRunners.isEmpty()) { player.sendMessage(Text.of("\u00a7cNo runners")); }
 			else {
 				//旧的目标序号
 				for (int i = 0; i < Manhunt.allRunners.size(); i++) {
 					ServerPlayerEntity x = Manhunt.allRunners.get(i);
 					if (x != null) {
-						if (Objects.equals(x.getName().asString(), info.getString("Name"))) {
+						if (Objects.equals(x.getName().getString(), info.getString("Name"))) {
 							previous = i;
 						}
 					}
@@ -100,7 +97,7 @@ public abstract class ServerPlayerInteractionManagerMixin {
 
 				if (previous != next) {
 					updateCompass(player, stackNbt, Manhunt.allRunners.get(next));
-					player.sendMessage(new LiteralText("\u00a7a目标切换至: " + Manhunt.allRunners.get(next).getName().asString()), MessageType.CHAT, Util.NIL_UUID);
+					player.sendMessage(Text.of("\u00a7aSwitched runner to: " + Manhunt.allRunners.get(next).getName().getString()));
 				}
 
 			}

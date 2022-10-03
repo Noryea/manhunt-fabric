@@ -1,12 +1,12 @@
 package cn.noryea.manhunt;
 
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.scoreboard.Team;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
 import java.util.LinkedList;
@@ -26,24 +26,21 @@ public class Manhunt implements ModInitializer {
 
         ServerTickEvents.START_WORLD_TICK.register((world) -> {
 
-            //删除追踪器实体
-            world.getServer().getCommandManager().execute(world.getServer().getCommandSource().withSilent(),"kill @e[type=item,nbt={Item:{tag:{Tracker:1b}}}]");
+            world.getServer().getCommandManager().executeWithPrefix(world.getServer().getCommandSource().withSilent(), "kill @e[type=item,nbt={Item:{tag:{Tracker:1b}}}]");
 
-            //创建队伍
             Scoreboard scoreboard = world.getServer().getScoreboard();
             if (scoreboard.getTeam("hunters") == null) {
                 Team team = scoreboard.addTeam("hunters");
-                team.setDisplayName(new LiteralText("猎人"));
+                team.setDisplayName(Text.of("Hunters"));
                 team.setColor(huntersColor);
             }
 
             if (scoreboard.getTeam("runners") == null) {
                 Team team = scoreboard.addTeam("runners");
-                team.setDisplayName(new LiteralText("逃者"));
+                team.setDisplayName(Text.of("Runners"));
                 team.setColor(runnersColor);
             }
 
-            //获取玩家列表
             allPlayers = world.getServer().getPlayerManager().getPlayerList();
             allRunners = new LinkedList<>();
 
@@ -58,8 +55,7 @@ public class Manhunt implements ModInitializer {
 
         });
 
-        //命令注册
-        CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> ManhuntCommand.registerCommands(dispatcher));
+        CommandRegistrationCallback.EVENT.register(ManhuntCommand::registerCommands);
 
     }
 }
