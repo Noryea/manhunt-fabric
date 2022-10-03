@@ -52,16 +52,16 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
                 nbt.putInt("HideFlags", 1);
                 nbt.put("Info", new NbtCompound());
                 nbt.put("display", new NbtCompound());
-                nbt.getCompound("display").putString("Name", "{\"text\": \"Tracker\",\"italic\": false,\"color\": \"white\"}");
+                nbt.getCompound("display").putString("Name", "{\"translate\": \"manhunt.item.tracker\",\"italic\": false,\"color\": \"white\"}");
 
                 ItemStack stack = new ItemStack(Items.COMPASS);
                 stack.setNbt(nbt);
                 stack.addEnchantment(Enchantments.VANISHING_CURSE, 1);
 
-                this.giveItemStack(stack);  //给予
+                this.giveItemStack(stack);
             }
 
-            //显示信息
+
             if (holdingTracker()) {
                 holding = true;
                 if (this.getMainHandStack().getNbt() != null && this.getMainHandStack().getNbt().getBoolean("Tracker")) {
@@ -85,7 +85,6 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
         }
     }
 
-    //逃者死亡事件
     @Inject(method = "onDeath", at = @At("HEAD"))
     public void onDeath(DamageSource source, CallbackInfo ci) {
         Scoreboard scoreboard = server.getScoreboard();
@@ -97,11 +96,55 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
                 scoreboard.clearPlayerTeam(this.getName().getString());
 
                 if (server.getScoreboard().getTeam("runners").getPlayerList().isEmpty()) {
-                    server.getCommandManager().executeWithPrefix(this.getCommandSource().withSilent().withLevel(2), "title @a subtitle {\"text\":\"All runners were killed\",\"color\":\"white\"}");
-                    server.getCommandManager().executeWithPrefix(this.getCommandSource().withSilent().withLevel(2), "title @a title {\"text\":\"Hunters won!\",\"color\":\"red\"}");
+                    server.getCommandManager().executeWithPrefix(this.getCommandSource().withSilent().withLevel(2), "title @a subtitle {\"translate\":\"manhunt.win.hunters.subtitle\",\"color\":\"white\"}");
+                    server.getCommandManager().executeWithPrefix(this.getCommandSource().withSilent().withLevel(2), "title @a title {\"translate\":\"manhunt.win.hunters.title\",\"color\":\"red\"}");
                 }
             }
         }
+    }
+
+    private void showInfo(NbtCompound info) {
+        String dim = info.getString("Dimension");
+        MutableText dimension = Text.literal(dim);
+        if (!info.contains("Dimension")) {
+            dimension = Text.translatable("manhunt.scoreboard.world.unknown");
+        } else if (Objects.equals(dim, "minecraft:overworld")) {
+            dimension = Text.translatable("manhunt.scoreboard.world.overworld");
+        } else if (Objects.equals(dim, "minecraft:the_nether")) {
+            dimension = Text.translatable("manhunt.scoreboard.world.the_nether");
+        } else if (Objects.equals(dim, "minecraft:the_end")) {
+            dimension = Text.translatable("manhunt.scoreboard.world.the_end");
+        }
+
+        this.networkHandler.sendPacket(new OverlayMessageS2CPacket(Text.translatable("manhunt.scoreboard.target.text", info.getString("Name"), dimension)));
+    }
+
+    private boolean hasTracker() {
+        boolean n = false;
+        for (ItemStack item : this.getInventory().main) {
+            if (item.getItem().equals(Items.COMPASS) && item.getNbt() != null && item.getNbt().getBoolean("Tracker")) {
+                n = true;
+                break;
+            }
+        }
+
+        if (this.playerScreenHandler.getCursorStack().getNbt() != null && this.playerScreenHandler.getCursorStack().getNbt().getBoolean("Tracker")) {
+            n = true;
+        } else if (this.getOffHandStack().getNbt() != null && this.getOffHandStack().getNbt().getBoolean("Tracker")) {
+            n = true;
+        }
+
+        return n;
+    }
+    
+    private boolean holdingTracker() {
+        boolean n = false;
+        if (this.getMainHandStack().getNbt() != null && this.getMainHandStack().getNbt().getBoolean("Tracker") && this.getMainHandStack().getNbt().getCompound("Info").contains("Name")) {
+            n = true;
+        } else if (this.getOffHandStack().getNbt() != null && this.getOffHandStack().getNbt().getBoolean("Tracker") && this.getOffHandStack().getNbt().getCompound("Info").contains("Name")) {
+            n = true;
+        }
+        return n;
     }
 
     //玩家列表的名字
@@ -130,57 +173,4 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
 //            e.printStackTrace();
 //        }
 //    }
-
-    private void showInfo(NbtCompound info) {
-        String text_color = "\u00a7a";
-
-        String actionbar = "Target: ";
-        actionbar += text_color + info.getString("Name");
-        actionbar += " \u00a7f";
-        actionbar += " Dimension:";
-
-        String dimension = info.getString("Dimension");
-        if (!info.contains("Dimension")) {
-            dimension = "\u00a7e ?";
-        } else if (Objects.equals(dimension, "minecraft:overworld")) {
-            dimension = "\u00a72 overworld";
-        } else if (Objects.equals(dimension, "minecraft:the_nether")) {
-            dimension = "\u00a74 nether";
-        } else if (Objects.equals(dimension, "minecraft:the_end")) {
-            dimension = "\u00a75 end";
-        }
-
-        actionbar += text_color + dimension;
-
-        this.networkHandler.sendPacket(new OverlayMessageS2CPacket(Text.of(actionbar)));
-    }
-
-    private boolean hasTracker() {
-        boolean n = false;
-        for (ItemStack item : this.getInventory().main) {
-            if (item.getItem().equals(Items.COMPASS) && item.getNbt() != null && item.getNbt().getBoolean("Tracker")) {
-                n = true;
-                break;
-            }
-        }
-
-        if (this.playerScreenHandler.getCursorStack().getNbt() != null && this.playerScreenHandler.getCursorStack().getNbt().getBoolean("Tracker")) {
-            n = true;
-        } else if (this.getOffHandStack().getNbt() != null && this.getOffHandStack().getNbt().getBoolean("Tracker")) {
-            n = true;
-        }
-
-        return n;
-    }
-
-    private boolean holdingTracker() {
-        boolean n = false;
-        if (this.getMainHandStack().getNbt() != null && this.getMainHandStack().getNbt().getBoolean("Tracker") && this.getMainHandStack().getNbt().getCompound("Info").contains("Name")) {
-            n = true;
-        } else if (this.getOffHandStack().getNbt() != null && this.getOffHandStack().getNbt().getBoolean("Tracker") && this.getOffHandStack().getNbt().getCompound("Info").contains("Name")) {
-            n = true;
-        }
-        return n;
-    }
-
 }

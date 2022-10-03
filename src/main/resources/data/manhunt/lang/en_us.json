@@ -1,0 +1,17 @@
+{
+  "manhunt.item.tracker": "Tracker",
+  "manhunt.item.tracker.switchRunner": "Compass is now pointing to %s",
+  "manhunt.item.tracker.noRunners": "There is no runners",
+  "manhunt.commands.delay": "Set delay to: %d seconds",
+  "manhunt.commands.cured": "Cured %d targets",
+  "manhunt.commands.freeze": "\u00a7fHunters will be frozen for \u00a7b%d\u00a7f seconds",
+  "manhunt.teams.hunters.name": "Hunters",
+  "manhunt.teams.runners.name": "Runners",
+  "manhunt.win.hunters.title": "Hunters won!",
+  "manhunt.win.hunters.subtitle": "Runner got killed",
+  "manhunt.scoreboard.target.text": "Target: %1$s, Dimension: %2$s",
+  "manhunt.scoreboard.world.overworld": "Overworld",
+  "manhunt.scoreboard.world.the_nether": "The Nether",
+  "manhunt.scoreboard.world.the_end": "The End",
+  "manhunt.scoreboard.world.unknown": "Unknown"
+}

@@ -49,7 +49,7 @@ public class ManhuntCommand {
 
     private static int executeCompassDelay(ServerCommandSource source, Integer delay) {
         Manhunt.delay = delay;
-        source.sendFeedback(Text.of("Set delay to: " + delay + " seconds"), true);
+        source.sendFeedback(Text.translatable("manhunt.commands.delay", delay), true);
 
         return 1;
     }
@@ -64,7 +64,7 @@ public class ManhuntCommand {
             player.getHungerManager().setSaturationLevel(8.5F);
 
         }
-        source.sendFeedback(Text.of("Cured " + targets.size() + " targets"), true);
+        source.sendFeedback(Text.translatable("manhunt.commands.cured", targets.size()), true);
         return targets.size();
     }
 
@@ -90,7 +90,7 @@ public class ManhuntCommand {
             }
         }
 
-        source.sendFeedback(Text.of("\u00a7fHunters will be frozen for \u00a7b" + time + "\u00a7f seconds"), true);
+        source.sendFeedback(Text.translatable("manhunt.commands.freeze", time), true);
 
         return 1;
     }

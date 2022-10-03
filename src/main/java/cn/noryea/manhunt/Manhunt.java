@@ -20,23 +20,23 @@ public class Manhunt implements ModInitializer {
     public static final Formatting huntersColor = Formatting.RED;
     public static final Formatting runnersColor = Formatting.GREEN;
     public static int delay = 0;
+
     @Override
     public void onInitialize() {
 
         ServerTickEvents.START_WORLD_TICK.register((world) -> {
-
             world.getServer().getCommandManager().executeWithPrefix(world.getServer().getCommandSource().withSilent(), "kill @e[type=item,nbt={Item:{tag:{Tracker:1b}}}]");
 
             Scoreboard scoreboard = world.getServer().getScoreboard();
             if (scoreboard.getTeam("hunters") == null) {
                 Team team = scoreboard.addTeam("hunters");
-                team.setDisplayName(Text.of("Hunters"));
+                team.setDisplayName(Text.translatable("manhunt.teams.hunters.name"));
                 team.setColor(huntersColor);
             }
 
             if (scoreboard.getTeam("runners") == null) {
                 Team team = scoreboard.addTeam("runners");
-                team.setDisplayName(Text.of("Runners"));
+                team.setDisplayName(Text.translatable("manhunt.teams.runners.name"));
                 team.setColor(runnersColor);
             }
 

@@ -1,0 +1,17 @@
+{
+  "manhunt.item.tracker": "Трекер",
+  "manhunt.item.tracker.switchRunner": "Компасс теперь указывает на %s",
+  "manhunt.item.tracker.noRunners": "Команда бегунов пуста",
+  "manhunt.commands.delay": "Задержка установлена на: %d секунд",
+  "manhunt.commands.cured": "%d игроков вылечено",
+  "manhunt.commands.freeze": "\u00a7fОхотники будут заморожены на \u00a7b%d\u00a7f секунд",
+  "manhunt.teams.hunters.name": "Охотники",
+  "manhunt.teams.runners.name": "Бегуны",
+  "manhunt.win.hunters.title": "Охотники победили!",
+  "manhunt.win.hunters.subtitle": "Бегун(ы) были убиты",
+  "manhunt.scoreboard.target.text": "Цель: %1$s, Мир: %2$s",
+  "manhunt.scoreboard.world.overworld": "Верхний мир",
+  "manhunt.scoreboard.world.the_nether": "Нижний мир",
+  "manhunt.scoreboard.world.the_end": "Край",
+  "manhunt.scoreboard.world.unknown": "Неизвестно"
+}
