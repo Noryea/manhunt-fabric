@@ -97,7 +97,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
 
                 if (server.getScoreboard().getTeam("runners").getPlayerList().isEmpty()) {
                     server.getCommandManager().executeWithPrefix(this.getCommandSource().withSilent().withLevel(2), "title @a subtitle {\"translate\":\"manhunt.win.hunters.subtitle\",\"color\":\"white\"}");
-                    server.getCommandManager().executeWithPrefix(this.getCommandSource().withSilent().withLevel(2), "title @a title {\"translate\":\"manhunt.win.hunters.title\",\"color\":\"red\"}");
+                    server.getCommandManager().executeWithPrefix(this.getCommandSource().withSilent().withLevel(2), "title @a title {\"translate\":\"manhunt.win.hunters.title\",\"color\":\"white\"}");
                 }
             }
         }
