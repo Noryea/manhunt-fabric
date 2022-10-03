@@ -80,7 +80,7 @@ public class ManhuntCommand {
             }
         }
 
-        source.sendFeedback(Text.of("\u00a7fHunter will be frozen for \u00a7b" + time + "\u00a7f seconds"), true);
+        source.sendFeedback(Text.of("\u00a7fHunters will be frozen for \u00a7b" + time + "\u00a7f seconds"), true);
 
         return 1;
     }
