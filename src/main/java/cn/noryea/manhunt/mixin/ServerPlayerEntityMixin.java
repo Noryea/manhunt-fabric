@@ -134,10 +134,10 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
     private void showInfo(NbtCompound info) {
         String text_color = "\u00a7a";
 
-        String actionbar = "target: ";
+        String actionbar = "Target: ";
         actionbar += text_color + info.getString("Name");
         actionbar += " \u00a7f";
-        actionbar += " dimension: ";
+        actionbar += " Dimension: ";
 
         String dimension = info.getString("Dimension");
         if (!info.contains("Dimension")) {
