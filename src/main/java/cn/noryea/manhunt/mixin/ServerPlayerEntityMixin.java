@@ -137,17 +137,17 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
         String actionbar = "Target: ";
         actionbar += text_color + info.getString("Name");
         actionbar += " \u00a7f";
-        actionbar += " Dimension: ";
+        actionbar += " Dimension:";
 
         String dimension = info.getString("Dimension");
         if (!info.contains("Dimension")) {
-            dimension = "\u00a7e?";
+            dimension = "\u00a7e ?";
         } else if (Objects.equals(dimension, "minecraft:overworld")) {
-            dimension = "overworld";
+            dimension = "\u00a72 overworld";
         } else if (Objects.equals(dimension, "minecraft:the_nether")) {
-            dimension = "nether";
+            dimension = "\u00a74 nether";
         } else if (Objects.equals(dimension, "minecraft:the_end")) {
-            dimension = "end";
+            dimension = "\u00a75 end";
         }
 
         actionbar += text_color + dimension;
