@@ -65,17 +65,16 @@ public class ManhuntConfig {
   public void save() {
     try {
       if (!confFile.exists()) { confFile.getParentFile().mkdirs(); confFile.createNewFile(); }
-      else {
-        JsonObject jo = new JsonObject();
-        jo.add("_ColorsList", new JsonPrimitive(String.join(", ", Formatting.getNames(true, false))));
-        jo.add("huntersColor", new JsonPrimitive(huntersColor.getName()));
-        jo.add("runnersColor", new JsonPrimitive(runnersColor.getName()));
-        jo.add("compassDelay", new JsonPrimitive(delay));
 
-        PrintWriter printwriter = new PrintWriter(new FileWriter(confFile));
-        printwriter.print(gson.toJson(jo));
-        printwriter.close();
-      }
+      JsonObject jo = new JsonObject();
+      jo.add("_ColorsList", new JsonPrimitive(String.join(", ", Formatting.getNames(true, false))));
+      jo.add("huntersColor", new JsonPrimitive(huntersColor.getName()));
+      jo.add("runnersColor", new JsonPrimitive(runnersColor.getName()));
+      jo.add("compassDelay", new JsonPrimitive(delay));
+
+      PrintWriter printwriter = new PrintWriter(new FileWriter(confFile));
+      printwriter.print(gson.toJson(jo));
+      printwriter.close();
     } catch (IOException ex) {
       LOGGER.trace("Couldn't save configuration file", ex);
     }
