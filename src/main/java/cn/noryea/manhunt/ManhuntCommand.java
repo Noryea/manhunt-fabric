@@ -97,7 +97,6 @@ public class ManhuntCommand {
         player.addStatusEffect(new StatusEffectInstance(StatusEffects.MINING_FATIGUE, (time - 1) * 20, 255, false, false));
         player.addStatusEffect(new StatusEffectInstance(StatusEffects.RESISTANCE, time * 20, 255, false, false));
         player.addStatusEffect(new StatusEffectInstance(StatusEffects.WEAKNESS, time * 20, 255, false, false));
-
       }
     }
 
