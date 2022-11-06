@@ -20,6 +20,7 @@ public class ManhuntConfig {
   private Formatting huntersColor = Formatting.RED;
   private Formatting runnersColor = Formatting.GREEN;
   private int delay = 0;
+  private boolean runnersWinOnDragonDeath = true;
 
   //Getters
   public Formatting getHuntersColor() {
@@ -30,6 +31,9 @@ public class ManhuntConfig {
   }
   public int getDelay() {
     return delay;
+  }
+  public boolean isRunnersWinOnDragonDeath() {
+    return runnersWinOnDragonDeath;
   }
 
   //Setters
@@ -47,6 +51,10 @@ public class ManhuntConfig {
     delay = time;
     save();
   }
+  public void setRunnersWinOnDragonDeath(boolean bool) {
+    runnersWinOnDragonDeath = bool;
+    save();
+  }
 
   public void load() {
     if (!confFile.exists() || confFile.length() == 0) save();
@@ -57,6 +65,7 @@ public class ManhuntConfig {
       if((je = jo.get("huntersColor")) != null) huntersColor = Formatting.byName(je.getAsString());
       if((je = jo.get("runnersColor")) != null) runnersColor = Formatting.byName(je.getAsString());
       if((je = jo.get("compassDelay")) != null) delay = je.getAsInt();
+      if((je = jo.get("runnersWinOnDragonDeath")) != null) runnersWinOnDragonDeath = je.getAsBoolean();
     } catch (FileNotFoundException ex) {
       LOGGER.trace("Couldn't load configuration file", ex);
     }
@@ -71,6 +80,7 @@ public class ManhuntConfig {
       jo.add("huntersColor", new JsonPrimitive(huntersColor.getName()));
       jo.add("runnersColor", new JsonPrimitive(runnersColor.getName()));
       jo.add("compassDelay", new JsonPrimitive(delay));
+      jo.add("runnersWinOnDragonDeath", new JsonPrimitive(runnersWinOnDragonDeath));
 
       PrintWriter printwriter = new PrintWriter(new FileWriter(confFile));
       printwriter.print(gson.toJson(jo));

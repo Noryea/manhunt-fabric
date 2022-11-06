@@ -1,6 +1,7 @@
 package cn.noryea.manhunt;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.command.CommandRegistryAccess;
@@ -40,6 +41,9 @@ public class ManhuntCommand {
         .then(CommandManager.literal("compassDelay").requires((src) -> src.hasPermissionLevel(2))
             .then(CommandManager.argument("seconds", IntegerArgumentType.integer(0, 120))
                 .executes((ctx) -> executeCompassDelay(ctx.getSource(), IntegerArgumentType.getInteger(ctx, "seconds")))))
+        .then(CommandManager.literal("runnersWinOnDragonDeath").requires((src) -> src.hasPermissionLevel(2))
+            .then(CommandManager.argument("boolean", BoolArgumentType.bool())
+                .executes((ctx) -> setRunnersWinOnDragonDeath(ctx.getSource(), BoolArgumentType.getBool(ctx, "boolean")))))
         .then(CommandManager.literal("setColor").requires((src) -> src.hasPermissionLevel(2))
             .then(CommandManager.argument("team", TeamArgumentType.team())
                 .then(CommandManager.argument("color", ColorArgumentType.color())
@@ -61,6 +65,13 @@ public class ManhuntCommand {
   private static int executeCompassDelay(ServerCommandSource source, Integer delay) {
     config.setDelay(delay);
     source.sendFeedback(Text.translatable("manhunt.commands.delay", delay), true);
+
+    return 1;
+  }
+
+  private static int setRunnersWinOnDragonDeath(ServerCommandSource source, boolean bool) {
+    config.setRunnersWinOnDragonDeath(bool);
+    source.sendFeedback(Text.translatable("manhunt.commands.runnersWinOnDragonDeath", bool), true);
 
     return 1;
   }

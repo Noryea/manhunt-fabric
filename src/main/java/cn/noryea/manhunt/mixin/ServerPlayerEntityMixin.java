@@ -150,7 +150,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
     return n;
   }
 
-  //玩家列表的名字
+// 玩家列表的名字
 //    @Inject(method = "getPlayerListName", at = @At("TAIL"), cancellable = true)
 //    private void replacePlayerListName(CallbackInfoReturnable<Text> cir) {
 //        try {
