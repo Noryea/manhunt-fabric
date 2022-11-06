@@ -3,7 +3,7 @@
   "manhunt.item.tracker.switchRunner": "§7目标切换至§f%s",
   "manhunt.item.tracker.noRunners": "§c目标队伍成员为空",
   "manhunt.commands.delay": "§7Set delay to: §f%d §7seconds",
-  "manhunt.commands.runnersWinOnDragonDeath": "§7Set runnersWinOnDragonDeath to: §f%b",
+  "manhunt.commands.runnerswinset": "§7Set runnersWinOnDragonDeath to: §f%s",
   "manhunt.commands.cured": "§7已治愈 §f%d §7名玩家",
   "manhunt.commands.freeze": "§7猎人将在 §f%d§7 秒内原地不动",
   "manhunt.commands.teamColor.badTeam": "§cYou can only change colors of §f%1$s §cand §f%2$s §cteams",

@@ -3,7 +3,7 @@
   "manhunt.item.tracker.switchRunner": "§7Compass is now pointing to §f%s",
   "manhunt.item.tracker.noRunners": "§cThere is no runners",
   "manhunt.commands.delay": "§7Set delay to: §f%d §7seconds",
-  "manhunt.commands.runnersWinOnDragonDeath": "§7Set runnersWinOnDragonDeath to: §f%b",
+  "manhunt.commands.runnerswinset": "§7Set runnersWinOnDragonDeath to: §f%s",
   "manhunt.commands.cured": "§7Cured §f%d §7targets",
   "manhunt.commands.freeze": "§7Hunters will be frozen for §f%d§7 seconds",
   "manhunt.commands.teamColor.badTeam": "§cYou can only change colors of §f%1$s §cand §f%2$s §cteams",

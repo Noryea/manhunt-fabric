@@ -3,7 +3,7 @@
   "manhunt.item.tracker.switchRunner": "§7Компас теперь указывает на §f%s",
   "manhunt.item.tracker.noRunners": "§cКоманда бегунов пуста",
   "manhunt.commands.delay": "§7Задержка установлена на: %d секунд",
-  "manhunt.commands.runnersWinOnDragonDeath": "§7runnersWinOnDragonDeath теперь §f%b",
+  "manhunt.commands.runnerswinset": "§7runnersWinOnDragonDeath теперь §f%s",
   "manhunt.commands.cured": "§f%d §7игроков вылечено",
   "manhunt.commands.freeze": "§7Охотники будут заморожены на §f%d§7 секунд",
   "manhunt.commands.teamColor.badTeam": "§cВы можете менять цвет только у команд §f%1$s §cи §f%2$s",

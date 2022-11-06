@@ -71,7 +71,7 @@ public class ManhuntCommand {
 
   private static int setRunnersWinOnDragonDeath(ServerCommandSource source, boolean bool) {
     config.setRunnersWinOnDragonDeath(bool);
-    source.sendFeedback(Text.translatable("manhunt.commands.runnersWinOnDragonDeath", bool), true);
+    source.sendFeedback(Text.translatable("manhunt.commands.runnerswinset", bool), true);
 
     return 1;
   }
