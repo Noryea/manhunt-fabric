@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '0.10-SNAPSHOT'
+	id 'fabric-loom' version '1.0-SNAPSHOT'
 	id 'maven-publish'
 }
 
@@ -12,15 +12,33 @@ group = project.maven_group
 
 repositories {
 	maven { url "https://maven.shedaniel.me/" }
+	maven { url "https://jitpack.io" }
+	maven { url 'https://maven.nucleoid.xyz/' }
+	maven {
+		name = "Modrinth"
+		url = "https://api.modrinth.com/maven"
+		content {
+			includeGroup "maven.modrinth"
+		}
+	}
 }
 
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-    //Fabric api
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
+	//Server translations API
+	include(modImplementation("fr.catcore:server-translations-api:${project.server_translations_version}"))
+	//Carpet for fake players
+	modImplementation "com.github.gnembon:fabric-carpet:${project.carpet_version}"
+
+	//optimizations
+	modImplementation "maven.modrinth:lazydfu:0.1.3"
+	//modImplementation "maven.modrinth:starlight:1.1.1+1.19"
+	//modImplementation "maven.modrinth:lithium:mc1.19.2-0.8.3"
+	//modImplementation "maven.modrinth:ferrite-core:5.0.0-fabric"
 }
 
 processResources {

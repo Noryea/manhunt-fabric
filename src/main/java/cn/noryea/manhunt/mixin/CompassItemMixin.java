@@ -11,12 +11,12 @@ import org.spongepowered.asm.mixin.Mixin;
 @Mixin(CompassItem.class)
 public abstract class CompassItemMixin extends Item {
 
-    public CompassItemMixin(Settings settings) {
-        super(settings);
-    }
+  public CompassItemMixin(Settings settings) {
+    super(settings);
+  }
 
-    public boolean canMine(BlockState state, World world, BlockPos pos, PlayerEntity miner) {
-        return !(miner.getMainHandStack().getOrCreateNbt().getBoolean("Tracker") && miner.isCreative());
-    }
+  public boolean canMine(BlockState state, World world, BlockPos pos, PlayerEntity miner) {
+    return !(miner.getMainHandStack().getOrCreateNbt().getBoolean("Tracker") && miner.isCreative());
+  }
 
 }

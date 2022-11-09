@@ -1,65 +1,65 @@
 package cn.noryea.manhunt;
 
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.minecraft.scoreboard.AbstractTeam;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.scoreboard.Team;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralText;
-import net.minecraft.util.Formatting;
+import net.minecraft.text.Text;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.LinkedList;
 import java.util.List;
 
 public class Manhunt implements ModInitializer {
 
-    public static List<ServerPlayerEntity> allPlayers;
-    public static List<ServerPlayerEntity> allRunners;
+  public static List<ServerPlayerEntity> allPlayers;
+  public static List<ServerPlayerEntity> allRunners;
 
-    public static final Formatting huntersColor = Formatting.RED;
-    public static final Formatting runnersColor = Formatting.GREEN;
+  public static Logger LOGGER = LoggerFactory.getLogger("manhunt");
 
+  @Override
+  public void onInitialize() {
+    ManhuntConfig config = ManhuntConfig.INSTANCE;
+    config.load();
+    ServerTickEvents.START_WORLD_TICK.register((world) -> {
+      world.getServer().getCommandManager().executeWithPrefix(world.getServer().getCommandSource().withSilent(), "kill @e[type=item,nbt={Item:{tag:{Tracker:1b}}}]");
 
-    @Override
-    public void onInitialize() {
+      Scoreboard scoreboard = world.getServer().getScoreboard();
+      if (scoreboard.getTeam("hunters") == null) {
+        Team team = scoreboard.addTeam("hunters");
+        team.setDisplayName(Text.translatable("manhunt.teams.hunters.name"));
+        team.setCollisionRule(AbstractTeam.CollisionRule.ALWAYS);
+        team.setShowFriendlyInvisibles(false);
+      }
+      scoreboard.getTeam("hunters").setColor(config.getHuntersColor());
 
-        ServerTickEvents.START_WORLD_TICK.register((world) -> {
+      if (scoreboard.getTeam("runners") == null) {
+        Team team = scoreboard.addTeam("runners");
+        team.setDisplayName(Text.translatable("manhunt.teams.runners.name"));
+        team.setCollisionRule(AbstractTeam.CollisionRule.ALWAYS);
+        team.setShowFriendlyInvisibles(false);
+      }
+      scoreboard.getTeam("runners").setColor(config.getRunnersColor());
 
-            //删除追踪器实体
-            world.getServer().getCommandManager().execute(world.getServer().getCommandSource().withSilent(),"kill @e[type=item,nbt={Item:{tag:{Tracker:1b}}}]");
+      allPlayers = world.getServer().getPlayerManager().getPlayerList();
+      allRunners = new LinkedList<>();
 
-            //创建队伍
-            Scoreboard scoreboard = world.getServer().getScoreboard();
-            if (scoreboard.getTeam("hunters") == null) {
-                Team team = scoreboard.addTeam("hunters");
-                team.setDisplayName(new LiteralText("猎人"));
-                team.setColor(huntersColor);
-            }
+      Team runners = scoreboard.getTeam("runners");
+      for (ServerPlayerEntity x : allPlayers) {
+        if (x != null) {
+          if (x.isTeamPlayer(runners)) {
+            allRunners.add(x);
+          }
+        }
+      }
 
-            if (scoreboard.getTeam("runners") == null) {
-                Team team = scoreboard.addTeam("runners");
-                team.setDisplayName(new LiteralText("逃者"));
-                team.setColor(runnersColor);
-            }
+    });
 
-            //获取玩家列表
-            allPlayers = world.getServer().getPlayerManager().getPlayerList();
-            allRunners = new LinkedList<>();
+    CommandRegistrationCallback.EVENT.register(ManhuntCommand::registerCommands);
 
-            Team runners = scoreboard.getTeam("runners");
-            for (ServerPlayerEntity x : allPlayers) {
-                if (x != null) {
-                    if (x.isTeamPlayer(runners)) {
-                        allRunners.add(x);
-                    }
-                }
-            }
-
-        });
-
-        //命令注册
-        CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> ManhuntCommand.registerCommands(dispatcher));
-
-    }
+  }
 }

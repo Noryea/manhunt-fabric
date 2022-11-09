@@ -1,0 +1,23 @@
+{
+  "manhunt.item.tracker": "§dТрекер",
+  "manhunt.item.tracker.switchRunner": "§7Компас теперь указывает на §f%s",
+  "manhunt.item.tracker.noRunners": "§cКоманда бегунов пуста",
+  "manhunt.commands.delay": "§7Задержка установлена на: %d секунд",
+  "manhunt.commands.runnerswinset": "§7runnersWinOnDragonDeath теперь §f%s",
+  "manhunt.commands.cured": "§f%d §7игроков вылечено",
+  "manhunt.commands.freeze": "§7Охотники будут заморожены на §f%d§7 секунд",
+  "manhunt.commands.teamColor.badTeam": "§cВы можете менять цвет только у команд §f%1$s §cи §f%2$s",
+  "manhunt.commands.teamColor.success": "§7Сменили цвет команды \"§f%1$s§7\" на §f%2$s",
+  "manhunt.commands.reload": "§7Файл конфигурации успешно перезагружен",
+  "manhunt.teams.hunters.name": "§cОхотники",
+  "manhunt.teams.runners.name": "§aБегуны",
+  "manhunt.win.hunters.title": "§cОхотники победили!",
+  "manhunt.win.hunters.subtitle": "§7Бегун(ы) были убиты",
+  "manhunt.win.runners.title": "§cБегун(ы) победили!",
+  "manhunt.win.runners.subtitle": "§7Дракон был убит",
+  "manhunt.scoreboard.target.text": "§7Цель: §f%1$s, §7Мир: %2$s",
+  "manhunt.scoreboard.world.overworld": "§2Верхний мир",
+  "manhunt.scoreboard.world.the_nether": "§4Нижний мир",
+  "manhunt.scoreboard.world.the_end": "§dКрай",
+  "manhunt.scoreboard.world.unknown": "§6Неизвестно"
+}

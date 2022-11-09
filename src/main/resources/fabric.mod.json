@@ -1,15 +1,15 @@
 {
   "schemaVersion": 1,
   "id": "manhunt",
-  "version": "1.0.2",
+  "version": "${version}",
   "name": "Manhunt",
-  "description": "Fabric下的猎人游戏模组 | Manhunt mod for Fabric.",
+  "description": "Fork of Noryea's manhunt mod for Fabric.",
   "authors": [
-    "Noryea"
+    "Noryea",
+    "AqUpd"
   ],
   "contact": {
-    "homepage": "https://github.com/Noryea/manhunt-fabric",
-    "sources": "https://github.com/Noryea/manhunt-fabric"
+    "sources": "https://github.com/Ivan-Khar/manhunt-fabric"
   },
   "license": "GNU General Public License v3.0",
   "environment": "*",

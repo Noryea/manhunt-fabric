@@ -1,0 +1,23 @@
+{
+  "manhunt.item.tracker": "§dTracker",
+  "manhunt.item.tracker.switchRunner": "§7Compass is now pointing to §f%s",
+  "manhunt.item.tracker.noRunners": "§cThere is no runners",
+  "manhunt.commands.delay": "§7Set delay to: §f%d §7seconds",
+  "manhunt.commands.runnerswinset": "§7Set runnersWinOnDragonDeath to: §f%s",
+  "manhunt.commands.cured": "§7Cured §f%d §7targets",
+  "manhunt.commands.freeze": "§7Hunters will be frozen for §f%d§7 seconds",
+  "manhunt.commands.teamColor.badTeam": "§cYou can only change colors of §f%1$s §cand §f%2$s §cteams",
+  "manhunt.commands.teamColor.success": "§7Changed color of §f%1$s §7team to §f%2$s",
+  "manhunt.commands.reload": "§7Succesfully reloaded configuration file",
+  "manhunt.teams.hunters.name": "§cHunters",
+  "manhunt.teams.runners.name": "§aRunners",
+  "manhunt.win.hunters.title": "§cHunters won!",
+  "manhunt.win.hunters.subtitle": "§7Runner(s) got killed",
+  "manhunt.win.runners.title": "§cRunners won!",
+  "manhunt.win.runners.subtitle": "§7Dragon was killed",
+  "manhunt.scoreboard.target.text": "§7Target: §f%1$s§f, §7Dimension: %2$s",
+  "manhunt.scoreboard.world.overworld": "§2Overworld",
+  "manhunt.scoreboard.world.the_nether": "§4The Nether",
+  "manhunt.scoreboard.world.the_end": "§dThe End",
+  "manhunt.scoreboard.world.unknown": "§6Unknown"
+}

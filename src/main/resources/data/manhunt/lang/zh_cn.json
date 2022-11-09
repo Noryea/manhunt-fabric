@@ -1,0 +1,23 @@
+{
+  "manhunt.item.tracker": "§d追踪器",
+  "manhunt.item.tracker.switchRunner": "§7目标切换至§f%s",
+  "manhunt.item.tracker.noRunners": "§c目标队伍成员为空",
+  "manhunt.commands.delay": "§7Set delay to: §f%d §7seconds",
+  "manhunt.commands.runnerswinset": "§7Set runnersWinOnDragonDeath to: §f%s",
+  "manhunt.commands.cured": "§7已治愈 §f%d §7名玩家",
+  "manhunt.commands.freeze": "§7猎人将在 §f%d§7 秒内原地不动",
+  "manhunt.commands.teamColor.badTeam": "§cYou can only change colors of §f%1$s §cand §f%2$s §cteams",
+  "manhunt.commands.teamColor.success": "§7Changed color of §f%1$s §7team to §f%2$s",
+  "manhunt.commands.reload": "§7Succesfully reloaded configuration file",
+  "manhunt.teams.hunters.name": "§c猎人",
+  "manhunt.teams.runners.name": "§a逃者",
+  "manhunt.win.hunters.title": "§c猎人胜利!",
+  "manhunt.win.hunters.subtitle": "§7所有逃者已阵亡",
+  "manhunt.win.runners.title": "§c逃者胜利!",
+  "manhunt.win.runners.subtitle": "§7龙被杀了",
+  "manhunt.scoreboard.target.text": "§7目标: §f%1$s§f, §7维度: %2$s",
+  "manhunt.scoreboard.world.overworld": "§2主世界",
+  "manhunt.scoreboard.world.the_nether": "§4下界",
+  "manhunt.scoreboard.world.the_end": "§d末地",
+  "manhunt.scoreboard.world.unknown": "§6未知"
+}

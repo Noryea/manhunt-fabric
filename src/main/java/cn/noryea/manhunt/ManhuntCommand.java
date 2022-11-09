@@ -1,111 +1,137 @@
 package cn.noryea.manhunt;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.minecraft.command.CommandRegistryAccess;
+import net.minecraft.command.argument.ColorArgumentType;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.command.argument.TeamArgumentType;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.network.MessageType;
-import net.minecraft.network.packet.s2c.play.GameMessageS2CPacket;
-import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.scoreboard.Team;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Util;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 
 import java.util.Collection;
-import java.util.Iterator;
 
 public class ManhuntCommand {
-    public static void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher) {
+  private static ManhuntConfig config = ManhuntConfig.INSTANCE;
 
-        dispatcher.register((LiteralArgumentBuilder)((LiteralArgumentBuilder)(LiteralArgumentBuilder)((LiteralArgumentBuilder)CommandManager.literal("mh").requires((source) -> {
-            return source.hasPermissionLevel(0);
-        })).then(CommandManager.literal("join").then(CommandManager.argument("team", TeamArgumentType.team()).executes((context) -> {
-            return executeJoin((ServerCommandSource)context.getSource(), TeamArgumentType.getTeam(context, "team"));
-        })))).then(CommandManager.literal("cure").then(CommandManager.argument("targets", EntityArgumentType.players()).executes((context) -> {
-            return executeCure((ServerCommandSource)context.getSource(), EntityArgumentType.getPlayers(context, "targets"));
-        }))).then(CommandManager.literal("freezeAllHunters").then(CommandManager.argument("seconds", IntegerArgumentType.integer(1, 100)).executes((context) -> {
-            return executeFreeze((ServerCommandSource)context.getSource(), IntegerArgumentType.getInteger(context, "seconds"));
-        }))));
+  @SuppressWarnings("unused")
+  public static void registerCommands(CommandDispatcher<ServerCommandSource> dis, CommandRegistryAccess reg, CommandManager.RegistrationEnvironment env) {
+
+    dis.register(CommandManager.literal("mh")
+        .then(CommandManager.literal("join")
+            .then(CommandManager.argument("team", TeamArgumentType.team())
+                .executes((ctx) -> executeJoin(ctx.getSource(), TeamArgumentType.getTeam(ctx, "team")))))
+        .then(CommandManager.literal("cure").requires((src) -> src.hasPermissionLevel(2))
+            .then(CommandManager.argument("targets", EntityArgumentType.players())
+                .executes((ctx) -> executeCure(ctx.getSource(), EntityArgumentType.getPlayers(ctx, "targets")))))
+        .then(CommandManager.literal("freeze").requires((src) -> src.hasPermissionLevel(2))
+            .then(CommandManager.argument("seconds", IntegerArgumentType.integer(1, 120))
+                .executes((ctx) -> executeFreeze(ctx.getSource(), IntegerArgumentType.getInteger(ctx, "seconds")))))
+        .then(CommandManager.literal("compassDelay").requires((src) -> src.hasPermissionLevel(2))
+            .then(CommandManager.argument("seconds", IntegerArgumentType.integer(0, 120))
+                .executes((ctx) -> executeCompassDelay(ctx.getSource(), IntegerArgumentType.getInteger(ctx, "seconds")))))
+        .then(CommandManager.literal("runnersWinOnDragonDeath").requires((src) -> src.hasPermissionLevel(2))
+            .then(CommandManager.argument("boolean", BoolArgumentType.bool())
+                .executes((ctx) -> setRunnersWinOnDragonDeath(ctx.getSource(), BoolArgumentType.getBool(ctx, "boolean")))))
+        .then(CommandManager.literal("setColor").requires((src) -> src.hasPermissionLevel(2))
+            .then(CommandManager.argument("team", TeamArgumentType.team())
+                .then(CommandManager.argument("color", ColorArgumentType.color())
+                    .executes((ctx) -> executeChangeTeamColor(ctx.getSource(), TeamArgumentType.getTeam(ctx, "team"), ColorArgumentType.getColor(ctx, "color"))))))
+        .then(CommandManager.literal("reload").requires((src) -> src.hasPermissionLevel(2))
+            .executes((ctx) -> executeReload(ctx.getSource())))
+    );
+  }
+
+  private static int executeJoin(ServerCommandSource source, Team team) {
+    Scoreboard scoreboard = source.getServer().getScoreboard();
+
+    scoreboard.addPlayerToTeam(source.getPlayer().getName().getString(), team);
+    source.sendFeedback(Text.translatable("commands.team.join.success.single", source.getPlayer().getName(), team.getFormattedName()), true);
+
+    return 1;
+  }
+
+  private static int executeCompassDelay(ServerCommandSource source, Integer delay) {
+    config.setDelay(delay);
+    source.sendFeedback(Text.translatable("manhunt.commands.delay", delay), true);
+
+    return 1;
+  }
+
+  private static int setRunnersWinOnDragonDeath(ServerCommandSource source, boolean bool) {
+    config.setRunnersWinOnDragonDeath(bool);
+    source.sendFeedback(Text.translatable("manhunt.commands.runnerswinset", bool), true);
+
+    return 1;
+  }
+
+  private static int executeCure(ServerCommandSource source, Collection<? extends Entity> targets) {
+    for (Entity target : targets) {
+      ServerPlayerEntity player = (ServerPlayerEntity) target;
+
+      player.clearStatusEffects();
+      player.setHealth(player.getMaxHealth());
+      player.getHungerManager().setFoodLevel(20);
+      player.getHungerManager().setSaturationLevel(8.5F);
 
     }
+    source.sendFeedback(Text.translatable("manhunt.commands.cured", targets.size()), true);
+    return targets.size();
+  }
 
-    private static int executeJoin(ServerCommandSource source, Team team) throws CommandSyntaxException {
-        Scoreboard scoreboard = source.getServer().getScoreboard();
+  private static int executeFreeze(ServerCommandSource source, int time) throws CommandSyntaxException {
+    MinecraftServer server = source.getEntityOrThrow().getServer();
 
-        scoreboard.addPlayerToTeam(source.getPlayer().getName().asString(), team);
-        source.sendFeedback(new TranslatableText("commands.team.join.success.single", source.getPlayer().getName(), team.getFormattedName()), true);
+    for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
 
-        return 1;
+      if (player.isTeamPlayer(server.getScoreboard().getTeam("hunters"))) {
+
+        player.clearStatusEffects();
+        player.setHealth(player.getMaxHealth());
+        player.getHungerManager().setFoodLevel(20);
+        player.getHungerManager().setSaturationLevel(8.5F);
+
+        player.addStatusEffect(new StatusEffectInstance(StatusEffects.BLINDNESS, time * 20, 255, false, true));
+        player.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, time * 20, 255, false, false));
+        player.addStatusEffect(new StatusEffectInstance(StatusEffects.JUMP_BOOST, time * 20, 248, false, false));
+        player.addStatusEffect(new StatusEffectInstance(StatusEffects.MINING_FATIGUE, (time - 1) * 20, 255, false, false));
+        player.addStatusEffect(new StatusEffectInstance(StatusEffects.RESISTANCE, time * 20, 255, false, false));
+        player.addStatusEffect(new StatusEffectInstance(StatusEffects.WEAKNESS, time * 20, 255, false, false));
+      }
     }
 
-    private static int executeCure(ServerCommandSource source, Collection<? extends Entity> targets) {
-        if (source.hasPermissionLevel(2)) {
-            Iterator var3 = targets.iterator();
+    source.sendFeedback(Text.translatable("manhunt.commands.freeze", time), true);
 
-            while (var3.hasNext()) {
-                ServerPlayerEntity player = (ServerPlayerEntity) var3.next();
+    return 1;
+  }
 
-                player.clearStatusEffects();
-                player.setHealth(player.getMaxHealth());
-                player.getHungerManager().setFoodLevel(20);
-                player.getHungerManager().setSaturationLevel(8.5F);
-
-            }
-            source.sendFeedback(new LiteralText("已治愈" + targets.size() + "名玩家"), true);
-            return targets.size();
-
-        } else {
-            source.sendFeedback(new LiteralText("\u00a7c宁不配"), false);
-            return 0;
-        }
+  private static int executeChangeTeamColor(ServerCommandSource source, Team team, Formatting color) {
+    if(team.getName().equals("hunters")) { config.setHuntersColor(color); }
+    else if(team.getName().equals("runners")) { config.setRunnersColor(color); }
+    else {
+      source.sendFeedback(Text.translatable("manhunt.commands.teamColor.badTeam", Text.translatable("manhunt.teams.hunters.name"), Text.translatable("manhunt.teams.runners.name")), true);
+      return -1;
     }
 
-    private static int executeFreeze(ServerCommandSource source, int time) throws CommandSyntaxException {
-        if (source.hasPermissionLevel(2)) {
+    team.setColor(color);
+    source.sendFeedback(Text.translatable("manhunt.commands.teamColor.success", Text.translatable("manhunt.teams." + team.getName() + ".name"), color.getName()), true);
+    return 1;
+  }
 
-            MinecraftServer server = source.getEntityOrThrow().getServer();
-            Iterator<ServerPlayerEntity> vec3 = server.getPlayerManager().getPlayerList().listIterator();
-
-            while (vec3.hasNext()) {
-
-                ServerPlayerEntity player = vec3.next();
-
-                if (player.isTeamPlayer( server.getScoreboard().getTeam("hunters") )) {
-
-                    player.clearStatusEffects();
-                    player.setHealth(player.getMaxHealth());
-                    player.getHungerManager().setFoodLevel(20);
-                    player.getHungerManager().setSaturationLevel(8.5F);
-
-                    player.addStatusEffect(new StatusEffectInstance(StatusEffects.BLINDNESS, time * 20, 255, false, true));
-                    player.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, time * 20, 255, false, false));
-                    player.addStatusEffect(new StatusEffectInstance(StatusEffects.JUMP_BOOST, time * 20, 248, false, false));
-                    player.addStatusEffect(new StatusEffectInstance(StatusEffects.MINING_FATIGUE, (time - 1) * 20, 255, false, false));
-                    player.addStatusEffect(new StatusEffectInstance(StatusEffects.RESISTANCE, time * 20, 255, false, false));
-                    player.addStatusEffect(new StatusEffectInstance(StatusEffects.WEAKNESS, time * 20, 255, false, false));
-
-                }
-            }
-
-            source.sendFeedback(new LiteralText("\u00a7f猎人将在\u00a7b" + time + "\u00a7f秒内原地不动"), true);
-
-            return 1;
-
-        } else {
-            source.sendFeedback(new LiteralText("\u00a7c宁不配"), false);
-            return 0;
-        }
-    }
+  private static int executeReload(ServerCommandSource source) {
+    config.load();
+    source.sendFeedback(Text.translatable("manhunt.commands.reload"), true);
+    return 1;
+  }
 }
